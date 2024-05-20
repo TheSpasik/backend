@@ -21,6 +21,16 @@ class UserController {
     }
   }
 
+  async changeBio(req, res, next) {
+    try {
+      const {userId, email, password, username } = req.body;
+      const user = await userService.changeBio(userId, email, password, username);
+      return res.json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async changeSubscription(req, res, next) {
     try {
       const { userId, subscription, cardNumber, cardDate, cardCVV } = req.body;
