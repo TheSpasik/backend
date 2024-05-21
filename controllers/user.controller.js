@@ -7,7 +7,7 @@ class UserController {
       const user = await userService.signIn(email, password);
       return res.json(user);
     } catch (error) {
-      next(error);
+      return res.status(500).json({ message: error.message });
     }
   }
 
@@ -17,7 +17,7 @@ class UserController {
       const user = await userService.signUp(email, password, username);
       return res.json(user);
     } catch (error) {
-      next(error);
+      return res.status(500).json({ message: error.message });
     }
   }
 
@@ -27,7 +27,7 @@ class UserController {
       const user = await userService.changeBio(userId, email, password, username);
       return res.json(user);
     } catch (error) {
-      next(error);
+      return res.status(500).json({ message: error.message });
     }
   }
 
@@ -43,7 +43,7 @@ class UserController {
       );
       return res.json(response);
     } catch (error) {
-      next(error);
+      return res.status(500).json({ message: error.message });
     }
   }
 }
