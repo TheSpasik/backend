@@ -46,6 +46,16 @@ class UserController {
       return res.status(500).json({ message: error.message });
     }
   }
+  
+  async getSubscriptionStats(req, res, next) {
+    try {
+      const user = await userService.getSubscriptionStats();
+      return res.json(user);
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+
 }
 
 const userController = new UserController();

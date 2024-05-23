@@ -9,6 +9,7 @@ const UserModel = model(
     name: { type: String, required: true },
     role: { type: String, required: false },
     subscription: { type: String, required: false },
+    entranceCode: { type: String, required: false },
     subscriptionExpiredAt: { type: Date, required: false },
   })
 );

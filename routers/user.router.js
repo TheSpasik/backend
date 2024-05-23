@@ -7,5 +7,6 @@ router.post("/sign-in", userController.signIn);
 router.post("/sign-up", userController.signUp);
 router.post("/change-subscription", userController.changeSubscription);
 router.post("/change-bio", userController.changeBio);
+router.get("/subscription-stats", userController.getSubscriptionStats);
 
 export default router;

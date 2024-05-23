@@ -1,11 +1,12 @@
 import UserModel from "../models/user.model.js";
 import randomstring from "randomstring";
 import bcrypt from "bcrypt";
+import moment from "moment";
 
-const subscriptionDurability = {
-  "1_month": 1000 * 60 * 60 * 24 * 31,
-  "3_months": 1000 * 60 * 60 * 24 * 31 * 3,
-  "1_year": 1000 * 60 * 60 * 24 * 31 * 12,
+const subscriptions = {
+  "1_month": "1 Month",
+  "3_months": "3 Months",
+  "1_year": "1 Year",
 };
 
 class UserService {
@@ -24,6 +25,7 @@ class UserService {
       name: user.name,
       role: user.role,
       subscription: user.subscription,
+      entranceCode: user.entranceCode,
       subscriptionExpiredAt: user.subscriptionExpiredAt,
     };
   }
@@ -87,6 +89,7 @@ class UserService {
       email: updatedUser.email,
       name: updatedUser.name,
       role: updatedUser.role,
+      entranceCode: updatedUser.entranceCode,
       subscription: updatedUser.subscription,
       subscriptionExpiredAt: updatedUser.subscriptionExpiredAt,
     };
@@ -103,15 +106,18 @@ class UserService {
     if (!userExists) {
       throw new Error(`User with id ${userId} not exists`);
     }
-
-    const subscriptionExpiredAt = new Date(
-      Date.now() + subscriptionDurability[subscription] || 0
+    const subscriptionSplited = subscription.split("_");
+    const subscriptionExpiredAt = moment().add(
+      subscriptionSplited[0],
+      subscriptionSplited[1]
     );
+    const entranceCode = randomstring.generate(16);
 
     await UserModel.updateOne(
       { _id: userId },
       {
         $set: {
+          entranceCode: entranceCode,
           subscription: subscription,
           subscriptionExpiredAt: subscriptionExpiredAt,
         },
@@ -119,9 +125,36 @@ class UserService {
     );
 
     return {
+      entranceCode: entranceCode,
       subscription: subscription,
       subscriptionExpiredAt: subscriptionExpiredAt,
     };
+  }
+
+  async getSubscriptionStats() {
+    const users = await UserModel.aggregate([
+      { $match: { role: { $ne: "admin" } } },
+      {
+        $group: {
+          _id: "$subscription",
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: "$_id",
+          count: "$count",
+        },
+      },
+    ]);
+    const usersCount = users.reduce((acc, user) => acc + user.count, 0);
+    console.log("users", users, usersCount);
+    const userSubscriptionStats = users.map((user) => ({
+      id: subscriptions[user._id] || "Without",
+      value: (user.count / usersCount) * 100,
+      label: subscriptions[user._id] || "Without",
+    }));
+    return userSubscriptionStats;
   }
 }
 
