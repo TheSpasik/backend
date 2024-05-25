@@ -21,10 +21,25 @@ class UserController {
     }
   }
 
+  async refreshData(req, res, next) {
+    try {
+      const { userId } = req.params;
+      const user = await userService.refreshData(userId);
+      return res.json(user);
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+
   async changeBio(req, res, next) {
     try {
-      const {userId, email, password, username } = req.body;
-      const user = await userService.changeBio(userId, email, password, username);
+      const { userId, email, password, username } = req.body;
+      const user = await userService.changeBio(
+        userId,
+        email,
+        password,
+        username
+      );
       return res.json(user);
     } catch (error) {
       return res.status(500).json({ message: error.message });
@@ -46,7 +61,7 @@ class UserController {
       return res.status(500).json({ message: error.message });
     }
   }
-  
+
   async getSubscriptionStats(req, res, next) {
     try {
       const user = await userService.getSubscriptionStats();
@@ -55,7 +70,6 @@ class UserController {
       return res.status(500).json({ message: error.message });
     }
   }
-
 }
 
 const userController = new UserController();

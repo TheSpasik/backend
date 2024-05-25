@@ -52,6 +52,22 @@ class UserService {
     };
   }
 
+  async refreshData(userId) {
+    const user = await UserModel.findOne({ _id: userId }).lean();
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return {
+      userId: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      subscription: user.subscription,
+      entranceCode: user.entranceCode,
+      subscriptionExpiredAt: user.subscriptionExpiredAt,
+    };
+  }
+
   async changeBio(userId, email, password, name) {
     const user = await UserModel.findOne({ _id: userId }).lean();
     if (!user) {
@@ -148,10 +164,10 @@ class UserService {
       },
     ]);
     const usersCount = users.reduce((acc, user) => acc + user.count, 0);
-    console.log("users", users, usersCount);
+
     const userSubscriptionStats = users.map((user) => ({
       id: subscriptions[user._id] || "Without",
-      value: (user.count / usersCount) * 100,
+      value: ((user.count / usersCount) * 100).toFixed(2),
       label: subscriptions[user._id] || "Without",
     }));
     return userSubscriptionStats;
